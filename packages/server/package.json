@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "vitest"
   },
   "dependencies": {
     "@chat-x/shared": "*",
@@ -19,8 +20,11 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/supertest": "^7.2.1",
     "@types/uuid": "^10.0.0",
     "prisma": "^6.8.0",
-    "tsx": "^4.19.0"
+    "supertest": "^7.2.2",
+    "tsx": "^4.19.0",
+    "vitest": "^4.1.10"
   }
 }
