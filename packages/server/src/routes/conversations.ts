@@ -3,12 +3,19 @@ import { authMiddleware, type AuthenticatedRequest } from "../middleware/auth.js
 import {
   findExistingConversation,
   createConversation,
+  getUserConversations,
 } from "../services/conversation.service.js";
 import { prisma } from "../lib/prisma.js";
 
 const router = Router();
 
 router.use(authMiddleware);
+
+router.get("/", async (req, res) => {
+  const { userId } = req as AuthenticatedRequest;
+  const conversations = await getUserConversations(userId);
+  res.json({ conversations });
+});
 
 router.post("/", async (req, res) => {
   const { userId } = req as AuthenticatedRequest;

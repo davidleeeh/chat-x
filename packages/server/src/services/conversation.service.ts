@@ -82,6 +82,18 @@ export async function findExistingConversation(
   return conv ? toConversationResponse(conv) : null;
 }
 
+export async function getUserConversations(userId: string): Promise<Conversation[]> {
+  const convs = await prisma.conversation.findMany({
+    where: {
+      participants: { some: { userId } },
+    },
+    include: conversationInclude,
+    orderBy: { updatedAt: "desc" },
+  });
+
+  return convs.map(toConversationResponse);
+}
+
 export async function createConversation(
   userIdA: string,
   userIdB: string,
