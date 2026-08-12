@@ -5,6 +5,8 @@ import {
   createConversation,
   getUserConversations,
 } from "../services/conversation.service.js";
+import { sendMessage } from "../services/message.service.js";
+import { validateMessageContent } from "@chat-x/shared";
 import { prisma } from "../lib/prisma.js";
 
 const router = Router();
@@ -36,7 +38,9 @@ router.post("/", async (req, res) => {
   }
 
   if (otherUser.id === userId) {
-    res.status(400).json({ error: "Cannot start a conversation with yourself", code: "VALIDATION_ERROR" });
+    res
+      .status(400)
+      .json({ error: "Cannot start a conversation with yourself", code: "VALIDATION_ERROR" });
     return;
   }
 
@@ -48,6 +52,36 @@ router.post("/", async (req, res) => {
 
   const conversation = await createConversation(userId, otherUser.id);
   res.status(201).json({ conversation });
+});
+
+router.post("/:conversationId/messages", async (req, res) => {
+  //TODO: Find alternatives to fix this type workaround
+  const userId = (req as unknown as AuthenticatedRequest).userId;
+  const { conversationId } = req.params;
+  const { content } = req.body;
+
+  if (!content || typeof content !== "string") {
+    res.status(400).json({ error: "content is required", code: "VALIDATION_ERROR" });
+    return;
+  }
+
+  const validationError = validateMessageContent(content);
+  if (validationError) {
+    res.status(400).json({ error: validationError, code: "VALIDATION_ERROR" });
+    return;
+  }
+
+  const participant = await prisma.conversationParticipant.findUnique({
+    where: { conversationId_userId: { conversationId, userId } },
+  });
+
+  if (!participant) {
+    res.status(404).json({ error: "Conversation not found", code: "NOT_FOUND" });
+    return;
+  }
+
+  const message = await sendMessage(conversationId, userId, content.trim());
+  res.status(201).json({ message });
 });
 
 export { router as conversationsRouter };
