@@ -1,0 +1,20 @@
+export const USERNAME_MIN_LENGTH = 3;
+export const USERNAME_MAX_LENGTH = 20;
+export const USERNAME_PATTERN = /^[a-zA-Z0-9_]+$/;
+export const MESSAGE_MAX_LENGTH = 2000;
+export const MESSAGES_PER_PAGE = 50;
+export const SSE_HEARTBEAT_INTERVAL_MS = 30_000;
+
+export const SSE_EVENT_NAMES = {
+  MESSAGE: 'message',
+  CONNECTED: 'connected',
+} as const;
+
+export const ERROR_CODES = {
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  FORBIDDEN: 'FORBIDDEN',
+  NOT_FOUND: 'NOT_FOUND',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  CONVERSATION_EXISTS: 'CONVERSATION_EXISTS',
+  USER_NOT_FOUND: 'USER_NOT_FOUND',
+} as const;
