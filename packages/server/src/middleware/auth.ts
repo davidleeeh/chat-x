@@ -1,5 +1,5 @@
-import type { Request, Response, NextFunction } from 'express';
-import { prisma } from '../lib/prisma.js';
+import type { Request, Response, NextFunction } from "express";
+import { prisma } from "../lib/prisma.js";
 
 export interface AuthenticatedRequest extends Request {
   userId: string;
@@ -8,8 +8,10 @@ export interface AuthenticatedRequest extends Request {
 
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'Missing or invalid authorization header', code: 'UNAUTHORIZED' });
+  if (!header?.startsWith("Bearer ")) {
+    res
+      .status(401)
+      .json({ error: "Missing or invalid authorization header", code: "UNAUTHORIZED" });
     return;
   }
 
@@ -17,7 +19,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
 
   const session = await prisma.session.findUnique({ where: { id: token } });
   if (!session) {
-    res.status(401).json({ error: 'Invalid session token', code: 'UNAUTHORIZED' });
+    res.status(401).json({ error: "Invalid session token", code: "UNAUTHORIZED" });
     return;
   }
 

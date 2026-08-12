@@ -1,6 +1,7 @@
 {
   "name": "chat-x",
   "private": true,
+  "type": "module",
   "workspaces": [
     "packages/shared",
     "packages/server",
@@ -10,10 +11,20 @@
     "build": "npm run build --workspace=packages/shared && npm run build --workspace=packages/server && npm run build --workspace=packages/client",
     "dev:server": "npm run dev --workspace=packages/server",
     "dev:client": "npm run dev --workspace=packages/client",
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\""
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "format": "prettier --write \"packages/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"packages/**/*.{ts,tsx}\"",
+    "lint": "eslint \"packages/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint --fix \"packages/**/*.{ts,tsx}\""
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "concurrently": "^9.1.0",
-    "typescript": "^5.7.0"
+    "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.10.0",
+    "prettier": "^3.9.6",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.67.0"
   }
 }

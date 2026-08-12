@@ -1,4 +1,4 @@
-import type { User, Message, Conversation } from './models.js';
+import type { User, Message, Conversation } from "./models.js";
 
 export interface LoginRequest {
   username: string;

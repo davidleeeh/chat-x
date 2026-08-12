@@ -1,12 +1,12 @@
-import type { Message } from './models.js';
+import type { Message } from "./models.js";
 
 export interface SSEMessageEvent {
-  type: 'message';
+  type: "message";
   data: Message;
 }
 
 export interface SSEConnectedEvent {
-  type: 'connected';
+  type: "connected";
   data: { userId: string };
 }
 

@@ -1,5 +1,5 @@
-import { prisma } from '../lib/prisma.js';
-import type { User } from '@chat-x/shared';
+import { prisma } from "../lib/prisma.js";
+import type { User } from "@chat-x/shared";
 
 function toUserResponse(user: { id: string; username: string; createdAt: Date }): User {
   return {
