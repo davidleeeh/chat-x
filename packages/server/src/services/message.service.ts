@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import type { Message } from "@chat-x/shared";
+import { MESSAGES_PER_PAGE } from "@chat-x/shared";
 
 export async function sendMessage(
   conversationId: string,
@@ -25,6 +26,20 @@ export async function sendMessage(
     }),
   ]);
 
+  return toMessageResponse(msg);
+}
+
+interface DbMessage {
+  id: string;
+  sequenceNum: number;
+  conversationId: string;
+  senderId: string;
+  content: string;
+  createdAt: Date;
+  sender: { username: string };
+}
+
+function toMessageResponse(msg: DbMessage): Message {
   return {
     id: msg.id,
     sequenceNum: msg.sequenceNum,
@@ -33,5 +48,30 @@ export async function sendMessage(
     senderUsername: msg.sender.username,
     content: msg.content,
     createdAt: msg.createdAt.toISOString(),
+  };
+}
+
+export async function getMessages(
+  conversationId: string,
+  before?: number,
+): Promise<{ messages: Message[]; hasMore: boolean }> {
+  const where: { conversationId: string; sequenceNum?: { lt: number } } = { conversationId };
+  if (before !== undefined) {
+    where.sequenceNum = { lt: before };
+  }
+
+  const messages = await prisma.message.findMany({
+    where,
+    include: { sender: true },
+    orderBy: { sequenceNum: "desc" },
+    take: MESSAGES_PER_PAGE + 1,
+  });
+
+  const hasMore = messages.length > MESSAGES_PER_PAGE;
+  if (hasMore) messages.pop();
+
+  return {
+    messages: messages.reverse().map(toMessageResponse),
+    hasMore,
   };
 }
