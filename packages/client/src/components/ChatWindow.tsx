@@ -7,9 +7,10 @@ import { MessageInput } from "./MessageInput.js";
 
 interface ChatWindowProps {
   conversation: Conversation;
+  incomingMessage: Message | null;
 }
 
-export function ChatWindow({ conversation }: ChatWindowProps) {
+export function ChatWindow({ conversation, incomingMessage }: ChatWindowProps) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Map<string, Message>>(new Map());
   const [hasMore, setHasMore] = useState(false);
@@ -27,6 +28,15 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
       setHasMore(data.hasMore);
     });
   }, [conversation.id]);
+
+  useEffect(() => {
+    if (!incomingMessage || incomingMessage.conversationId !== conversation.id) return;
+    setMessages((prev) => {
+      const next = new Map(prev);
+      next.set(incomingMessage.id, incomingMessage);
+      return next;
+    });
+  }, [incomingMessage, conversation.id]);
 
   const handleLoadMore = useCallback(async () => {
     const sorted = Array.from(messages.values()).sort(
