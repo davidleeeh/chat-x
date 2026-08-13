@@ -2,13 +2,15 @@ import { useState, useEffect, useCallback } from "react";
 import type { Conversation, Message } from "@chat-x/shared";
 import { getConversations, createConversation } from "../api/client.js";
 import { useSSE } from "../hooks/useSSE.js";
+import { useMessages } from "../hooks/useMessages.js";
 import { Sidebar } from "../components/Sidebar.js";
 import { ChatWindow } from "../components/ChatWindow.js";
 
 export function ChatPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
-  const [incomingMessage, setIncomingMessage] = useState<Message | null>(null);
+
+  const { messages, hasMore, loadMore, addMessage, send } = useMessages(activeConversationId);
 
   useEffect(() => {
     getConversations().then((data) => setConversations(data.conversations));
@@ -16,7 +18,7 @@ export function ChatPage() {
 
   useSSE({
     onMessage: useCallback((message: Message) => {
-      setIncomingMessage(message);
+      addMessage(message);
 
       setConversations((prev) => {
         const updated = prev.map((c) =>
@@ -27,7 +29,7 @@ export function ChatPage() {
         updated.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
         return updated;
       });
-    }, []),
+    }, [addMessage]),
   });
 
   const handleNewChat = useCallback(async (username: string) => {
@@ -52,7 +54,13 @@ export function ChatPage() {
       />
       <div className="chat-area">
         {activeConversation ? (
-          <ChatWindow conversation={activeConversation} incomingMessage={incomingMessage} />
+          <ChatWindow
+            conversation={activeConversation}
+            messages={messages}
+            hasMore={hasMore}
+            onLoadMore={loadMore}
+            onSend={send}
+          />
         ) : (
           <div className="chat-placeholder">Select a conversation to start chatting</div>
         )}

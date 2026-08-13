@@ -1,77 +1,19 @@
-import { useState, useEffect, useCallback } from "react";
 import type { Conversation, Message } from "@chat-x/shared";
-import { getMessages, sendMessage } from "../api/client.js";
 import { useAuth } from "../hooks/useAuth.js";
 import { MessageList } from "./MessageList.js";
 import { MessageInput } from "./MessageInput.js";
 
 interface ChatWindowProps {
   conversation: Conversation;
-  incomingMessage: Message | null;
+  messages: Message[];
+  hasMore: boolean;
+  onLoadMore: () => void;
+  onSend: (content: string) => Promise<void>;
 }
 
-export function ChatWindow({ conversation, incomingMessage }: ChatWindowProps) {
+export function ChatWindow({ conversation, messages, hasMore, onLoadMore, onSend }: ChatWindowProps) {
   const { user } = useAuth();
-  const [messages, setMessages] = useState<Map<string, Message>>(new Map());
-  const [hasMore, setHasMore] = useState(false);
-
-  useEffect(() => {
-    setMessages(new Map());
-    setHasMore(false);
-
-    getMessages(conversation.id).then((data) => {
-      const map = new Map<string, Message>();
-      for (const msg of data.messages) {
-        map.set(msg.id, msg);
-      }
-      setMessages(map);
-      setHasMore(data.hasMore);
-    });
-  }, [conversation.id]);
-
-  useEffect(() => {
-    if (!incomingMessage || incomingMessage.conversationId !== conversation.id) return;
-    setMessages((prev) => {
-      const next = new Map(prev);
-      next.set(incomingMessage.id, incomingMessage);
-      return next;
-    });
-  }, [incomingMessage, conversation.id]);
-
-  const handleLoadMore = useCallback(async () => {
-    const sorted = Array.from(messages.values()).sort(
-      (a, b) => a.sequenceNum - b.sequenceNum,
-    );
-    const oldest = sorted[0];
-    if (!oldest) return;
-
-    const data = await getMessages(conversation.id, oldest.sequenceNum);
-    setMessages((prev) => {
-      const next = new Map(prev);
-      for (const msg of data.messages) {
-        next.set(msg.id, msg);
-      }
-      return next;
-    });
-    setHasMore(data.hasMore);
-  }, [conversation.id, messages]);
-
-  const handleSend = useCallback(
-    async (content: string) => {
-      const data = await sendMessage(conversation.id, content);
-      setMessages((prev) => {
-        const next = new Map(prev);
-        next.set(data.message.id, data.message);
-        return next;
-      });
-    },
-    [conversation.id],
-  );
-
   const otherUser = conversation.participants.find((p) => p.id !== user?.id);
-  const sortedMessages = Array.from(messages.values()).sort(
-    (a, b) => a.sequenceNum - b.sequenceNum,
-  );
 
   return (
     <>
@@ -79,11 +21,11 @@ export function ChatWindow({ conversation, incomingMessage }: ChatWindowProps) {
         <span>{otherUser?.username ?? "Unknown"}</span>
       </div>
       <MessageList
-        messages={sortedMessages}
+        messages={messages}
         hasMore={hasMore}
-        onLoadMore={handleLoadMore}
+        onLoadMore={onLoadMore}
       />
-      <MessageInput onSend={handleSend} />
+      <MessageInput onSend={onSend} />
     </>
   );
 }
