@@ -21,6 +21,11 @@ export function ChatPage() {
       addMessage(message);
 
       setConversations((prev) => {
+        const exists = prev.some((c) => c.id === message.conversationId);
+        if (!exists) {
+          getConversations().then((data) => setConversations(data.conversations));
+          return prev;
+        }
         const updated = prev.map((c) =>
           c.id === message.conversationId
             ? { ...c, lastMessage: message, updatedAt: message.createdAt }
