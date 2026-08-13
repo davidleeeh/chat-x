@@ -1,5 +1,6 @@
 import type { Response } from "express";
-import { SSE_HEARTBEAT_INTERVAL_MS } from "@chat-x/shared";
+import { SSE_HEARTBEAT_INTERVAL_MS, SSE_EVENT_NAMES } from "@chat-x/shared";
+import type { Message } from "@chat-x/shared";
 
 interface SSEConnection {
   res: Response;
@@ -44,4 +45,16 @@ export function getUserConnections(userId: string): Response[] {
   const userConns = connections.get(userId);
   if (!userConns) return [];
   return Array.from(userConns.values()).map((c) => c.res);
+}
+
+export function writeMessageEvent(res: Response, message: Message): void {
+  res.write(`id: ${message.sequenceNum}\nevent: ${SSE_EVENT_NAMES.MESSAGE}\ndata: ${JSON.stringify(message)}\n\n`);
+}
+
+export function broadcastMessage(userIds: string[], message: Message): void {
+  for (const userId of userIds) {
+    for (const res of getUserConnections(userId)) {
+      writeMessageEvent(res, message);
+    }
+  }
 }

@@ -6,6 +6,7 @@ import {
   getUserConversations,
 } from "../services/conversation.service.js";
 import { sendMessage, getMessages } from "../services/message.service.js";
+import { broadcastMessage } from "../services/sse.service.js";
 import { validateMessageContent } from "@chat-x/shared";
 import { prisma } from "../lib/prisma.js";
 
@@ -104,6 +105,16 @@ router.post("/:conversationId/messages", async (req, res) => {
   }
 
   const message = await sendMessage(conversationId, userId, content.trim());
+
+  const participants = await prisma.conversationParticipant.findMany({
+    where: { conversationId },
+    select: { userId: true },
+  });
+  broadcastMessage(
+    participants.map((p) => p.userId),
+    message,
+  );
+
   res.status(201).json({ message });
 });
 

@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
-import { addConnection, removeConnection } from "../services/sse.service.js";
+import { addConnection, removeConnection, writeMessageEvent } from "../services/sse.service.js";
 import { SSE_EVENT_NAMES } from "@chat-x/shared";
+import { getMessagesSince } from "../services/message.service.js";
 
 const router = Router();
 
@@ -32,6 +33,17 @@ router.get("/", async (req, res) => {
 
   const connectedData = JSON.stringify({ userId });
   res.write(`event: ${SSE_EVENT_NAMES.CONNECTED}\ndata: ${connectedData}\n\n`);
+
+  const lastEventId = req.headers["last-event-id"];
+  if (lastEventId) {
+    const afterSequenceNum = Number(lastEventId);
+    if (!isNaN(afterSequenceNum)) {
+      const missed = await getMessagesSince(userId, afterSequenceNum);
+      for (const msg of missed) {
+        writeMessageEvent(res, msg);
+      }
+    }
+  }
 
   req.on("close", () => {
     removeConnection(userId, sessionId);

@@ -15,7 +15,8 @@
     "format": "prettier --write \"packages/**/*.{ts,tsx}\"",
     "format:check": "prettier --check \"packages/**/*.{ts,tsx}\"",
     "lint": "eslint \"packages/**/*.{ts,tsx}\"",
-    "lint:fix": "eslint --fix \"packages/**/*.{ts,tsx}\""
+    "lint:fix": "eslint --fix \"packages/**/*.{ts,tsx}\"",
+    "test": "npm test --workspace=@chat-x/server"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

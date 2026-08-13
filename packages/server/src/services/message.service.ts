@@ -51,6 +51,23 @@ function toMessageResponse(msg: DbMessage): Message {
   };
 }
 
+export async function getMessagesSince(
+  userId: string,
+  afterSequenceNum: number,
+): Promise<Message[]> {
+  const messages = await prisma.message.findMany({
+    where: {
+      sequenceNum: { gt: afterSequenceNum },
+      conversation: { participants: { some: { userId } } },
+    },
+    include: { sender: true },
+    orderBy: { sequenceNum: "asc" },
+    take: 500,
+  });
+
+  return messages.map(toMessageResponse);
+}
+
 export async function getMessages(
   conversationId: string,
   before?: number,

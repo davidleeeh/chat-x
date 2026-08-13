@@ -84,6 +84,24 @@ describe("GET /api/conversations", () => {
     expect(res.body.conversations[0].id).toBe(conv1.body.conversation.id);
   });
 
+  it("includes lastMessage preview in conversation list", async () => {
+    const aliceToken = await login("alice");
+    await login("bob");
+    const conv = await createConversation(aliceToken, "bob");
+
+    await request(app)
+      .post(`/api/conversations/${conv.body.conversation.id}/messages`)
+      .set("Authorization", `Bearer ${aliceToken}`)
+      .send({ content: "Latest message" });
+
+    const res = await request(app)
+      .get("/api/conversations")
+      .set("Authorization", `Bearer ${aliceToken}`);
+
+    expect(res.body.conversations[0].lastMessage).not.toBeNull();
+    expect(res.body.conversations[0].lastMessage.content).toBe("Latest message");
+  });
+
   it("returns empty array for user with no conversations", async () => {
     const aliceToken = await login("alice");
 
