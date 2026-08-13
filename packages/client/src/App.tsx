@@ -1,6 +1,7 @@
 import { AuthProvider } from "./context/AuthContext.js";
 import { useAuth } from "./hooks/useAuth.js";
 import { LoginPage } from "./pages/LoginPage.js";
+import { ChatPage } from "./pages/ChatPage.js";
 
 function AppContent() {
   const { user, loading, logout } = useAuth();
@@ -18,7 +19,7 @@ function AppContent() {
         </div>
       </header>
       <main className="app-main">
-        <p>Welcome, {user.username}!</p>
+        <ChatPage />
       </main>
     </div>
   );

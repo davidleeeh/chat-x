@@ -1,4 +1,10 @@
-import type { LoginResponse, MeResponse, ApiError } from "@chat-x/shared";
+import type {
+  LoginResponse,
+  MeResponse,
+  CreateConversationResponse,
+  GetConversationsResponse,
+  ApiError,
+} from "@chat-x/shared";
 
 const TOKEN_KEY = "chat-x-token";
 
@@ -51,4 +57,17 @@ export async function logout(): Promise<void> {
 
 export async function getMe(): Promise<MeResponse> {
   return request<MeResponse>("/api/auth/me");
+}
+
+export async function getConversations(): Promise<GetConversationsResponse> {
+  return request<GetConversationsResponse>("/api/conversations");
+}
+
+export async function createConversation(
+  participantUsername: string,
+): Promise<CreateConversationResponse> {
+  return request<CreateConversationResponse>("/api/conversations", {
+    method: "POST",
+    body: JSON.stringify({ participantUsername }),
+  });
 }
