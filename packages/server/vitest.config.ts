@@ -6,5 +6,6 @@ export default defineConfig({
       DATABASE_URL: "file:./test.db",
     },
     fileParallelism: false,
+    exclude: ["dist/**", "node_modules/**"],
   },
 });

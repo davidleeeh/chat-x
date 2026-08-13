@@ -1,3 +1,5 @@
+import path from "path";
+import { fileURLToPath } from "url";
 import express from "express";
 import cors from "cors";
 import { authRouter } from "./routes/auth.js";
@@ -18,6 +20,13 @@ export function createApp() {
   app.use("/api/auth", authRouter);
   app.use("/api/conversations", conversationsRouter);
   app.use("/api/events", eventsRouter);
+
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const clientDist = path.join(__dirname, "../../client/dist");
+  app.use(express.static(clientDist));
+  app.get("/{*path}", (_req, res) => {
+    res.sendFile(path.join(clientDist, "index.html"));
+  });
 
   app.use(errorHandler);
 
