@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import type { Message } from "@chat-x/shared";
 import { getMessages, sendMessage } from "../api/client.js";
 
+// Deduplicates by message ID before inserting. The sender receives their own
+// message twice: once from the POST response and once via SSE (which also
+// syncs their other tabs). The ID check ensures no duplicates in the UI.
 function insertSorted(messages: Message[], message: Message): Message[] {
   if (messages.some((m) => m.id === message.id)) return messages;
   const next = [...messages, message];

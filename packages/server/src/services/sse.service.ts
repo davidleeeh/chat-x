@@ -19,6 +19,8 @@ export function addConnection(userId: string, sessionId: string, res: Response):
     connections.set(userId, new Map());
   }
 
+  // SSE comment lines (starting with `:`) are silently ignored by EventSource
+  // but keep the TCP connection alive through proxies that drop idle connections.
   const heartbeat = setInterval(() => {
     res.write(": heartbeat\n\n");
   }, SSE_HEARTBEAT_INTERVAL_MS);

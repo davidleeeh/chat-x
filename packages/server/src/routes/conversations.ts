@@ -20,6 +20,8 @@ router.get("/", async (req, res) => {
   res.json({ conversations });
 });
 
+// Idempotent: returns the existing conversation if one already exists between the
+// two users, so the client can call this without checking first.
 router.post("/", async (req, res) => {
   const { userId } = req as AuthenticatedRequest;
   const { participantUsername } = req.body;
@@ -79,7 +81,6 @@ router.get("/:conversationId/messages", async (req, res) => {
 });
 
 router.post("/:conversationId/messages", async (req, res) => {
-  //TODO: Find alternatives to fix this type workaround
   const userId = (req as unknown as AuthenticatedRequest).userId;
   const { conversationId } = req.params;
   const { content } = req.body;
@@ -110,6 +111,8 @@ router.post("/:conversationId/messages", async (req, res) => {
     where: { conversationId },
     select: { userId: true },
   });
+
+  // This will broadcast the message to all participants in this conversation, including the sender.
   broadcastMessage(
     participants.map((p) => p.userId),
     message,

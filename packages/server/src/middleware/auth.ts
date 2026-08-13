@@ -6,6 +6,9 @@ export interface AuthenticatedRequest extends Request {
   sessionId: string;
 }
 
+// Validates the session token with a DB lookup on every request. Stateless
+// tokens (JWT) would avoid this, but session-based auth allows instant
+// invalidation on logout — acceptable trade-off at MVP scale.
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
   if (!header?.startsWith("Bearer ")) {

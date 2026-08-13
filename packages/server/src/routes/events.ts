@@ -6,7 +6,10 @@ import { getMessagesSince } from "../services/message.service.js";
 
 const router = Router();
 
+// SSE endpoint for client to subscribe to SSE events.
 router.get("/", async (req, res) => {
+  //Auth is via query param because the native EventSource API does
+  //not support custom headers.
   const token = req.query.token as string | undefined;
 
   if (!token) {

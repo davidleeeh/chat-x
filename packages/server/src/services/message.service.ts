@@ -7,8 +7,6 @@ export async function sendMessage(
   senderId: string,
   content: string,
 ): Promise<Message> {
-  //TODO: Consider optimizing how to get the last sequenceNum.
-  // Also look into why sequenceNum is unique across all conversations.
   const lastMessage = await prisma.message.findFirst({
     orderBy: { sequenceNum: "desc" },
     select: { sequenceNum: true },
@@ -81,6 +79,8 @@ export async function getMessages(
     where,
     include: { sender: true },
     orderBy: { sequenceNum: "desc" },
+    // Fetch one extra row beyond the page size. If it exists, there are more pages;
+    // pop it off before returning. This avoids a separate COUNT query.
     take: MESSAGES_PER_PAGE + 1,
   });
 

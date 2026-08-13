@@ -7,6 +7,13 @@ interface UseSSEOptions {
   onMessage: (message: Message) => void;
 }
 
+// Uses the native EventSource API (not @microsoft/fetch-event-source) for
+// built-in auto-reconnection and Last-Event-ID recovery with zero manual
+// reconnection logic.
+//
+// useEffectEvent (React 19.1) gives a stable callback reference that always
+// sees the latest onMessage without re-running the effect or adding it as a
+// dependency — the SSE connection stays open across re-renders.
 export function useSSE({ onMessage }: UseSSEOptions) {
   const handleMessage = useEffectEvent((message: Message) => {
     onMessage(message);

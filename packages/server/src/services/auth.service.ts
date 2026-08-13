@@ -20,7 +20,7 @@ export async function loginOrRegister(username: string): Promise<{ user: User; t
     data: { userId: user.id },
   });
 
-  // Use the session id as the auth token to make it simple.
+  // Using the session Id as the auth token as there's no real authentication in the MVP version.
   return {
     user: toUserResponse(user),
     token: session.id,

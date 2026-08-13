@@ -5,6 +5,8 @@ import { authMiddleware, type AuthenticatedRequest } from "../middleware/auth.js
 
 const router = Router();
 
+// Username-only auth: creates the user on first login. No passwords — the focus
+// of this MVP is the messaging architecture, not auth complexity.
 router.post("/login", async (req, res) => {
   const { username } = req.body;
 
