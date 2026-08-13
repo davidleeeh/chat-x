@@ -3,6 +3,8 @@ import type {
   MeResponse,
   CreateConversationResponse,
   GetConversationsResponse,
+  SendMessageResponse,
+  GetMessagesResponse,
   ApiError,
 } from "@chat-x/shared";
 
@@ -70,4 +72,27 @@ export async function createConversation(
     method: "POST",
     body: JSON.stringify({ participantUsername }),
   });
+}
+
+export async function getMessages(
+  conversationId: string,
+  before?: number,
+): Promise<GetMessagesResponse> {
+  const params = before ? `?before=${before}` : "";
+  return request<GetMessagesResponse>(
+    `/api/conversations/${conversationId}/messages${params}`,
+  );
+}
+
+export async function sendMessage(
+  conversationId: string,
+  content: string,
+): Promise<SendMessageResponse> {
+  return request<SendMessageResponse>(
+    `/api/conversations/${conversationId}/messages`,
+    {
+      method: "POST",
+      body: JSON.stringify({ content }),
+    },
+  );
 }

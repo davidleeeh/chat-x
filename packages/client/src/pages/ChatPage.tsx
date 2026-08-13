@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { Conversation } from "@chat-x/shared";
 import { getConversations, createConversation } from "../api/client.js";
 import { Sidebar } from "../components/Sidebar.js";
+import { ChatWindow } from "../components/ChatWindow.js";
 
 export function ChatPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -33,7 +34,7 @@ export function ChatPage() {
       />
       <div className="chat-area">
         {activeConversation ? (
-          <div className="chat-placeholder">Chat window for conversation coming in sub-phase 3</div>
+          <ChatWindow conversation={activeConversation} />
         ) : (
           <div className="chat-placeholder">Select a conversation to start chatting</div>
         )}
