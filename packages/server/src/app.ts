@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { authRouter } from "./routes/auth.js";
 import { conversationsRouter } from "./routes/conversations.js";
+import { eventsRouter } from "./routes/events.js";
 import { errorHandler } from "./middleware/errors.js";
 
 export function createApp() {
@@ -16,6 +17,7 @@ export function createApp() {
 
   app.use("/api/auth", authRouter);
   app.use("/api/conversations", conversationsRouter);
+  app.use("/api/events", eventsRouter);
 
   app.use(errorHandler);
 

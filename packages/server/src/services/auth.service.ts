@@ -20,6 +20,7 @@ export async function loginOrRegister(username: string): Promise<{ user: User; t
     data: { userId: user.id },
   });
 
+  // Use the session id as the auth token to make it simple.
   return {
     user: toUserResponse(user),
     token: session.id,
