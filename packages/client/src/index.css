@@ -54,6 +54,24 @@ input:focus {
   margin-top: 8px;
 }
 
+.error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #fdecea;
+  color: #b71c1c;
+  font-size: 13px;
+}
+
+.error-banner button {
+  background: transparent;
+  color: #b71c1c;
+  font-size: 12px;
+  padding: 2px 8px;
+  text-decoration: underline;
+}
+
 .loading {
   display: flex;
   align-items: center;

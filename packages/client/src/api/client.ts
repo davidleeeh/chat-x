@@ -79,20 +79,15 @@ export async function getMessages(
   before?: number,
 ): Promise<GetMessagesResponse> {
   const params = before ? `?before=${before}` : "";
-  return request<GetMessagesResponse>(
-    `/api/conversations/${conversationId}/messages${params}`,
-  );
+  return request<GetMessagesResponse>(`/api/conversations/${conversationId}/messages${params}`);
 }
 
 export async function sendMessage(
   conversationId: string,
   content: string,
 ): Promise<SendMessageResponse> {
-  return request<SendMessageResponse>(
-    `/api/conversations/${conversationId}/messages`,
-    {
-      method: "POST",
-      body: JSON.stringify({ content }),
-    },
-  );
+  return request<SendMessageResponse>(`/api/conversations/${conversationId}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ content }),
+  });
 }

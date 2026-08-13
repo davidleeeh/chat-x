@@ -10,10 +10,13 @@ export function ChatPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
 
-  const { messages, hasMore, loadMore, addMessage, send } = useMessages(activeConversationId);
+  const { messages, hasMore, error, loadMore, addMessage, send, clearError } = useMessages(activeConversationId);
+  const [conversationsError, setConversationsError] = useState<string | null>(null);
 
   useEffect(() => {
-    getConversations().then((data) => setConversations(data.conversations));
+    getConversations()
+      .then((data) => setConversations(data.conversations))
+      .catch(() => setConversationsError("Failed to load conversations"));
   }, []);
 
   useSSE({
@@ -54,8 +57,10 @@ export function ChatPage() {
       <Sidebar
         conversations={conversations}
         activeConversationId={activeConversationId}
+        error={conversationsError}
         onSelectConversation={setActiveConversationId}
         onNewChat={handleNewChat}
+        onDismissError={() => setConversationsError(null)}
       />
       <div className="chat-area">
         {activeConversation ? (
@@ -63,8 +68,10 @@ export function ChatPage() {
             conversation={activeConversation}
             messages={messages}
             hasMore={hasMore}
+            error={error}
             onLoadMore={loadMore}
             onSend={send}
+            onDismissError={clearError}
           />
         ) : (
           <div className="chat-placeholder">Select a conversation to start chatting</div>

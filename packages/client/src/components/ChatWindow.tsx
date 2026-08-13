@@ -7,11 +7,13 @@ interface ChatWindowProps {
   conversation: Conversation;
   messages: Message[];
   hasMore: boolean;
+  error: string | null;
   onLoadMore: () => void;
   onSend: (content: string) => Promise<void>;
+  onDismissError: () => void;
 }
 
-export function ChatWindow({ conversation, messages, hasMore, onLoadMore, onSend }: ChatWindowProps) {
+export function ChatWindow({ conversation, messages, hasMore, error, onLoadMore, onSend, onDismissError }: ChatWindowProps) {
   const { user } = useAuth();
   const otherUser = conversation.participants.find((p) => p.id !== user?.id);
 
@@ -20,6 +22,12 @@ export function ChatWindow({ conversation, messages, hasMore, onLoadMore, onSend
       <div className="chat-header">
         <span>{otherUser?.username ?? "Unknown"}</span>
       </div>
+      {error && (
+        <div className="error-banner">
+          <span>{error}</span>
+          <button onClick={onDismissError}>Dismiss</button>
+        </div>
+      )}
       <MessageList
         messages={messages}
         hasMore={hasMore}

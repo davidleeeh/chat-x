@@ -12,16 +12,20 @@ function insertSorted(messages: Message[], message: Message): Message[] {
 export function useMessages(conversationId: string | null) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [hasMore, setHasMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setMessages([]);
     setHasMore(false);
+    setError(null);
 
     if (!conversationId) return;
 
     getMessages(conversationId).then((data) => {
       setMessages(data.messages);
       setHasMore(data.hasMore);
+    }).catch(() => {
+      setError("Failed to load messages");
     });
   }, [conversationId]);
 
@@ -39,23 +43,34 @@ export function useMessages(conversationId: string | null) {
     const oldest = messages[0];
     if (!oldest) return;
 
-    const data = await getMessages(conversationId, oldest.sequenceNum);
-    setMessages((prev) => {
-      const seen = new Set(prev.map((m) => m.id));
-      const newMsgs = data.messages.filter((m) => !seen.has(m.id));
-      return [...newMsgs, ...prev];
-    });
-    setHasMore(data.hasMore);
+    try {
+      const data = await getMessages(conversationId, oldest.sequenceNum);
+      setMessages((prev) => {
+        const seen = new Set(prev.map((m) => m.id));
+        const newMsgs = data.messages.filter((m) => !seen.has(m.id));
+        return [...newMsgs, ...prev];
+      });
+      setHasMore(data.hasMore);
+    } catch {
+      setError("Failed to load older messages");
+    }
   }, [conversationId, messages]);
 
   const send = useCallback(
     async (content: string) => {
       if (!conversationId) return;
-      const data = await sendMessage(conversationId, content);
-      addMessage(data.message);
+      try {
+        setError(null);
+        const data = await sendMessage(conversationId, content);
+        addMessage(data.message);
+      } catch {
+        setError("Failed to send message");
+      }
     },
     [conversationId, addMessage],
   );
 
-  return { messages, hasMore, loadMore, addMessage, send };
+  const clearError = useCallback(() => setError(null), []);
+
+  return { messages, hasMore, error, loadMore, addMessage, send, clearError };
 }
