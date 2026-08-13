@@ -10,13 +10,15 @@ export function ChatPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
 
-  const { messages, hasMore, error, loadMore, addMessage, send, clearError } = useMessages(activeConversationId);
+  const { messages, hasMore, loading: loadingMessages, error, loadMore, addMessage, send, clearError } = useMessages(activeConversationId);
+  const [loadingConversations, setLoadingConversations] = useState(true);
   const [conversationsError, setConversationsError] = useState<string | null>(null);
 
   useEffect(() => {
     getConversations()
       .then((data) => setConversations(data.conversations))
-      .catch(() => setConversationsError("Failed to load conversations"));
+      .catch(() => setConversationsError("Failed to load conversations"))
+      .finally(() => setLoadingConversations(false));
   }, []);
 
   useSSE({
@@ -57,6 +59,7 @@ export function ChatPage() {
       <Sidebar
         conversations={conversations}
         activeConversationId={activeConversationId}
+        loading={loadingConversations}
         error={conversationsError}
         onSelectConversation={setActiveConversationId}
         onNewChat={handleNewChat}
@@ -68,6 +71,7 @@ export function ChatPage() {
             conversation={activeConversation}
             messages={messages}
             hasMore={hasMore}
+            loading={loadingMessages}
             error={error}
             onLoadMore={loadMore}
             onSend={send}

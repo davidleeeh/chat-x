@@ -5,6 +5,7 @@ import { ConversationList } from "./ConversationList.js";
 interface SidebarProps {
   conversations: Conversation[];
   activeConversationId: string | null;
+  loading: boolean;
   error: string | null;
   onSelectConversation: (id: string) => void;
   onNewChat: (username: string) => Promise<void>;
@@ -14,6 +15,7 @@ interface SidebarProps {
 export function Sidebar({
   conversations,
   activeConversationId,
+  loading,
   error,
   onSelectConversation,
   onNewChat,
@@ -26,6 +28,11 @@ export function Sidebar({
         <div className="error-banner">
           <span>{error}</span>
           <button onClick={onDismissError}>Dismiss</button>
+        </div>
+      )}
+      {loading && (
+        <div className="spinner-overlay">
+          <div className="spinner" />
         </div>
       )}
       <ConversationList

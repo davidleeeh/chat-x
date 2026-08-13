@@ -12,6 +12,7 @@ function insertSorted(messages: Message[], message: Message): Message[] {
 export function useMessages(conversationId: string | null) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [hasMore, setHasMore] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,11 +22,14 @@ export function useMessages(conversationId: string | null) {
 
     if (!conversationId) return;
 
+    setLoading(true);
     getMessages(conversationId).then((data) => {
       setMessages(data.messages);
       setHasMore(data.hasMore);
     }).catch(() => {
       setError("Failed to load messages");
+    }).finally(() => {
+      setLoading(false);
     });
   }, [conversationId]);
 
@@ -72,5 +76,5 @@ export function useMessages(conversationId: string | null) {
 
   const clearError = useCallback(() => setError(null), []);
 
-  return { messages, hasMore, error, loadMore, addMessage, send, clearError };
+  return { messages, hasMore, loading, error, loadMore, addMessage, send, clearError };
 }
