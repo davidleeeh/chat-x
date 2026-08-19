@@ -6,6 +6,7 @@ import type {
   SendMessageResponse,
   GetMessagesResponse,
   ApiError,
+  SetTypingResponse,
 } from "@chat-x/shared";
 
 const TOKEN_KEY = "chat-x-token";
@@ -89,5 +90,15 @@ export async function sendMessage(
   return request<SendMessageResponse>(`/api/conversations/${conversationId}/messages`, {
     method: "POST",
     body: JSON.stringify({ content }),
+  });
+}
+
+export async function sendTypingEvent(
+  conversationId: string,
+  isTyping: boolean,
+): Promise<SetTypingResponse> {
+  return request<SetTypingResponse>(`/api/conversations/${conversationId}/typing`, {
+    method: "POST",
+    body: JSON.stringify({ isTyping }),
   });
 }

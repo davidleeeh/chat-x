@@ -5,10 +5,11 @@ import { useAuth } from "../hooks/useAuth.js";
 interface MessageListProps {
   messages: Message[];
   hasMore: boolean;
+  typingIndicator: string | null;
   onLoadMore: () => void;
 }
 
-export function MessageList({ messages, hasMore, onLoadMore }: MessageListProps) {
+export function MessageList({ messages, hasMore, typingIndicator, onLoadMore }: MessageListProps) {
   const { user } = useAuth();
   const bottomRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,6 +48,11 @@ export function MessageList({ messages, hasMore, onLoadMore }: MessageListProps)
           </div>
         );
       })}
+      {typingIndicator && (
+        <div className={"theirs"}>
+          <div className="message-content">{typingIndicator}</div>
+        </div>
+      )}
       <div ref={bottomRef} />
     </div>
   );

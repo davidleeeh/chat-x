@@ -10,4 +10,9 @@ export interface SSEConnectedEvent {
   data: { userId: string };
 }
 
-export type SSEEvent = SSEMessageEvent | SSEConnectedEvent;
+export interface SSETypingEvent {
+  type: "typing";
+  data: { userId: string; conversationId: string; isTyping: boolean };
+}
+
+export type SSEEvent = SSEMessageEvent | SSEConnectedEvent | SSETypingEvent;

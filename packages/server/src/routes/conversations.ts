@@ -6,7 +6,7 @@ import {
   getUserConversations,
 } from "../services/conversation.service.js";
 import { sendMessage, getMessages } from "../services/message.service.js";
-import { broadcastMessage } from "../services/sse.service.js";
+import { broadcastMessage, broadcastTyping } from "../services/sse.service.js";
 import { validateMessageContent } from "@chat-x/shared";
 import { prisma } from "../lib/prisma.js";
 
@@ -119,6 +119,34 @@ router.post("/:conversationId/messages", async (req, res) => {
   );
 
   res.status(201).json({ message });
+});
+
+router.post("/:conversationId/typing", async (req, res) => {
+  const { userId } = req as unknown as AuthenticatedRequest;
+  const { conversationId } = req.params;
+  const { isTyping } = req.body;
+
+  const sender = await prisma.conversationParticipant.findUnique({
+    where: { conversationId_userId: { conversationId, userId } },
+  });
+
+  if (!sender) {
+    res.status(404).json({ error: "Conversation not found", code: "NOT_FOUND" });
+    return;
+  }
+
+  const otherParticipants = await prisma.conversationParticipant.findMany({
+    where: {
+      conversationId,
+      userId: { not: userId },
+    },
+  });
+
+  const recipientIds = otherParticipants.map((p: { userId: string }): string => p.userId);
+
+  broadcastTyping(recipientIds, userId, conversationId, isTyping);
+
+  res.json({ success: true });
 });
 
 export { router as conversationsRouter };

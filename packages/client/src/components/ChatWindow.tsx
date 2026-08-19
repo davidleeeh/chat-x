@@ -9,14 +9,29 @@ interface ChatWindowProps {
   hasMore: boolean;
   loading: boolean;
   error: string | null;
+  typingUsers: string[];
   onLoadMore: () => void;
   onSend: (content: string) => Promise<void>;
+  onTypingChange: (isTyping: boolean) => Promise<void>;
   onDismissError: () => void;
 }
 
-export function ChatWindow({ conversation, messages, hasMore, loading, error, onLoadMore, onSend, onDismissError }: ChatWindowProps) {
+export function ChatWindow({
+  conversation,
+  messages,
+  hasMore,
+  loading,
+  error,
+  typingUsers,
+  onLoadMore,
+  onSend,
+  onTypingChange,
+  onDismissError,
+}: ChatWindowProps) {
   const { user } = useAuth();
   const otherUser = conversation.participants.find((p) => p.id !== user?.id);
+  const isOtherUserTyping = typingUsers.includes(otherUser?.id ?? "");
+  const typingIndicator = isOtherUserTyping ? `${otherUser?.username} is typing...` : null;
 
   return (
     <>
@@ -38,8 +53,9 @@ export function ChatWindow({ conversation, messages, hasMore, loading, error, on
         messages={messages}
         hasMore={hasMore}
         onLoadMore={onLoadMore}
+        typingIndicator={typingIndicator}
       />
-      <MessageInput onSend={onSend} />
+      <MessageInput onSend={onSend} onTypingChange={onTypingChange} />
     </>
   );
 }

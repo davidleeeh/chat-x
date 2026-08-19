@@ -3,11 +3,23 @@ import { validateMessageContent } from "@chat-x/shared";
 
 interface MessageInputProps {
   onSend: (content: string) => Promise<void>;
+  onTypingChange: (isTyping: boolean) => Promise<void>;
 }
 
-export function MessageInput({ onSend }: MessageInputProps) {
+export function MessageInput({ onSend, onTypingChange }: MessageInputProps) {
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
+
+  const handleChange = async (newContent: string) => {
+    const oldContent = content;
+
+    setContent(newContent);
+
+    if (newContent === oldContent) return;
+    if (oldContent === "" && newContent !== "") return await onTypingChange(true);
+    if (oldContent !== "" && newContent === "") return await onTypingChange(false);
+    return;
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -20,7 +32,7 @@ export function MessageInput({ onSend }: MessageInputProps) {
     setSending(true);
     try {
       await onSend(trimmed);
-      setContent("");
+      handleChange("");
     } finally {
       setSending(false);
     }
@@ -32,7 +44,7 @@ export function MessageInput({ onSend }: MessageInputProps) {
         type="text"
         placeholder="Type a message..."
         value={content}
-        onChange={(e) => setContent(e.target.value)}
+        onChange={(e) => handleChange(e.target.value)}
         disabled={sending}
         autoFocus
       />
