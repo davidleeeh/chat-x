@@ -20,3 +20,9 @@ export interface Conversation {
   lastMessage: Message | null;
   updatedAt: string;
 }
+
+export interface TypingUpdate {
+  userId: string;
+  conversationId: string;
+  isTyping: boolean;
+}

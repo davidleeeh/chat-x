@@ -39,6 +39,14 @@ export interface GetMessagesResponse {
   hasMore: boolean;
 }
 
+export interface SetTypingRequest {
+  isTyping: boolean;
+}
+
+export interface SetTypingResponse {
+  success: boolean;
+}
+
 export interface ApiError {
   error: string;
   code: string;

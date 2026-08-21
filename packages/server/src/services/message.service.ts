@@ -7,24 +7,29 @@ export async function sendMessage(
   senderId: string,
   content: string,
 ): Promise<Message> {
-  const lastMessage = await prisma.message.findFirst({
-    orderBy: { sequenceNum: "desc" },
-    select: { sequenceNum: true },
-  });
-  const sequenceNum = (lastMessage?.sequenceNum ?? 0) + 1;
+  // Use transaction callback instead of an array of Prisma operations to avoid
+  // assigning the same sequenceNum to multiple concurrent request to add messages.
+  const result = await prisma.$transaction(async (tx) => {
+    const lastMessage = await tx.message.findFirst({
+      orderBy: { sequenceNum: "desc" },
+      select: { sequenceNum: true },
+    });
+    const sequenceNum = (lastMessage?.sequenceNum ?? 0) + 1;
 
-  const [msg] = await prisma.$transaction([
-    prisma.message.create({
+    const msg = await tx.message.create({
       data: { sequenceNum, conversationId, senderId, content },
       include: { sender: true },
-    }),
-    prisma.conversation.update({
+    });
+
+    await tx.conversation.update({
       where: { id: conversationId },
       data: { updatedAt: new Date() },
-    }),
-  ]);
+    });
 
-  return toMessageResponse(msg);
+    return msg;
+  });
+
+  return toMessageResponse(result);
 }
 
 interface DbMessage {

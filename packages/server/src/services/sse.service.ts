@@ -50,13 +50,29 @@ export function getUserConnections(userId: string): Response[] {
 }
 
 export function writeMessageEvent(res: Response, message: Message): void {
-  res.write(`id: ${message.sequenceNum}\nevent: ${SSE_EVENT_NAMES.MESSAGE}\ndata: ${JSON.stringify(message)}\n\n`);
+  res.write(
+    `id: ${message.sequenceNum}\nevent: ${SSE_EVENT_NAMES.MESSAGE}\ndata: ${JSON.stringify(message)}\n\n`,
+  );
 }
 
 export function broadcastMessage(userIds: string[], message: Message): void {
   for (const userId of userIds) {
     for (const res of getUserConnections(userId)) {
       writeMessageEvent(res, message);
+    }
+  }
+}
+
+export function broadcastTyping(
+  recipientIds: string[],
+  userId: string,
+  conversationId: string,
+  isTyping: boolean,
+) {
+  for (const recipientId of recipientIds) {
+    for (const res of getUserConnections(recipientId)) {
+      const userTypingData = JSON.stringify({ userId, conversationId, isTyping });
+      res.write(`event: ${SSE_EVENT_NAMES.TYPING}\ndata: ${userTypingData}\n\n`);
     }
   }
 }

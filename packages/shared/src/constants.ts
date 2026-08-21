@@ -14,6 +14,7 @@ export const SSE_HEARTBEAT_INTERVAL_MS = 30_000;
 export const SSE_EVENT_NAMES = {
   MESSAGE: "message",
   CONNECTED: "connected",
+  TYPING: "typing",
 } as const;
 
 export const ERROR_CODES = {
