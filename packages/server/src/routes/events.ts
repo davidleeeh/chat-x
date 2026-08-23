@@ -1,8 +1,15 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
-import { addConnection, removeConnection, writeMessageEvent } from "../services/sse.service.js";
-import { SSE_EVENT_NAMES } from "@chat-x/shared";
+import {
+  addConnection,
+  updateUserPresence,
+  removeConnection,
+  writeMessageEvent,
+  getUserPresences,
+} from "../services/sse.service.js";
+import { Conversation, SSE_EVENT_NAMES } from "@chat-x/shared";
 import { getMessagesSince } from "../services/message.service.js";
+import { getUserConversations } from "../services/conversation.service.js";
 
 const router = Router();
 
@@ -48,8 +55,25 @@ router.get("/", async (req, res) => {
     }
   }
 
+  const conversations: Conversation[] = await getUserConversations(userId);
+  const otherUserIds = new Set<string>();
+  for (const convo of conversations) {
+    for (const p of convo.participants) {
+      otherUserIds.add(p.id);
+    }
+  }
+
+  // Sending the presences of other users in the conversations ${userId} is in.
+  const otherUserPresences = await getUserPresences(Array.from(otherUserIds));
+  const presenceData = JSON.stringify(otherUserPresences);
+  res.write(`event: ${SSE_EVENT_NAMES.PRESENCE}\ndata: ${presenceData}\n\n`);
+
+  // Update the presence of ${userId} to online
+  await updateUserPresence(userId, true);
+
   req.on("close", () => {
     removeConnection(userId, sessionId);
+    updateUserPresence(userId, false);
   });
 });
 
