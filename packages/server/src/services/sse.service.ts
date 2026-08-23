@@ -1,6 +1,7 @@
 import type { Response } from "express";
 import { SSE_HEARTBEAT_INTERVAL_MS, SSE_EVENT_NAMES } from "@chat-x/shared";
-import type { Message } from "@chat-x/shared";
+import type { Message, UserPresence } from "@chat-x/shared";
+import { getUserConversations } from "./conversation.service";
 
 interface SSEConnection {
   res: Response;
@@ -73,6 +74,29 @@ export function broadcastTyping(
     for (const res of getUserConnections(recipientId)) {
       const userTypingData = JSON.stringify({ userId, conversationId, isTyping });
       res.write(`event: ${SSE_EVENT_NAMES.TYPING}\ndata: ${userTypingData}\n\n`);
+    }
+  }
+}
+
+export async function getUserPresences(userIds: string[]): Promise<UserPresence[]> {
+  const userPresences = new Map<string, UserPresence>();
+
+  return userIds.map((uid) => {
+    const isOnline = getUserConnections(uid).length > 0;
+    return { userId: uid, isOnline };
+  });
+}
+
+export async function updateUserPresence(userId: string, isOnline: boolean) {
+  const myPresnceData = JSON.stringify({ userId, isOnline });
+  const conversations = await getUserConversations(userId);
+
+  for (const convo of conversations) {
+    const participants = convo.participants.filter((p) => p.id !== userId);
+    for (const p of participants) {
+      for (const conn of getUserConnections(p.id)) {
+        conn.write(`event: ${SSE_EVENT_NAMES.PRESENCE}\ndata: ${myPresnceData}\n\n`);
+      }
     }
   }
 }

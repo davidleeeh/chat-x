@@ -26,3 +26,8 @@ export interface TypingUpdate {
   conversationId: string;
   isTyping: boolean;
 }
+
+export interface UserPresence {
+  userId: string;
+  isOnline: boolean;
+}

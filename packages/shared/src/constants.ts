@@ -15,6 +15,7 @@ export const SSE_EVENT_NAMES = {
   MESSAGE: "message",
   CONNECTED: "connected",
   TYPING: "typing",
+  PRESENCE: "presence",
 } as const;
 
 export const ERROR_CODES = {

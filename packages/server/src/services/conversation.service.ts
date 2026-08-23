@@ -69,6 +69,7 @@ export async function findExistingConversation(
   userIdB: string,
 ): Promise<Conversation | null> {
   // Find a conversation where both users are participants
+  // TODO: This is based on the assumption of 1-1 conversations. How do we make it support group chat?
   const conv = await prisma.conversation.findFirst({
     where: {
       AND: [
@@ -94,10 +95,7 @@ export async function getUserConversations(userId: string): Promise<Conversation
   return convs.map(toConversationResponse);
 }
 
-export async function createConversation(
-  userIdA: string,
-  userIdB: string,
-): Promise<Conversation> {
+export async function createConversation(userIdA: string, userIdB: string): Promise<Conversation> {
   const conv = await prisma.conversation.create({
     data: {
       participants: {

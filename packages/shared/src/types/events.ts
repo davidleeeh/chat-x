@@ -15,4 +15,9 @@ export interface SSETypingEvent {
   data: { userId: string; conversationId: string; isTyping: boolean };
 }
 
-export type SSEEvent = SSEMessageEvent | SSEConnectedEvent | SSETypingEvent;
+export interface SSEPresenceEvent {
+  type: "presence";
+  data: { userId: string; isOnline: boolean };
+}
+
+export type SSEEvent = SSEMessageEvent | SSEConnectedEvent | SSETypingEvent | SSEPresenceEvent;
