@@ -78,9 +78,7 @@ export function broadcastTyping(
   }
 }
 
-export async function getUserPresences(userIds: string[]): Promise<UserPresence[]> {
-  const userPresences = new Map<string, UserPresence>();
-
+export function getUserPresences(userIds: string[]): UserPresence[] {
   return userIds.map((uid) => {
     const isOnline = getUserConnections(uid).length > 0;
     return { userId: uid, isOnline };
@@ -88,14 +86,14 @@ export async function getUserPresences(userIds: string[]): Promise<UserPresence[
 }
 
 export async function updateUserPresence(userId: string, isOnline: boolean) {
-  const myPresnceData = JSON.stringify({ userId, isOnline });
+  const myPresenceData = JSON.stringify([{ userId, isOnline }]);
   const conversations = await getUserConversations(userId);
 
   for (const convo of conversations) {
     const participants = convo.participants.filter((p) => p.id !== userId);
     for (const p of participants) {
       for (const conn of getUserConnections(p.id)) {
-        conn.write(`event: ${SSE_EVENT_NAMES.PRESENCE}\ndata: ${myPresnceData}\n\n`);
+        conn.write(`event: ${SSE_EVENT_NAMES.PRESENCE}\ndata: ${myPresenceData}\n\n`);
       }
     }
   }

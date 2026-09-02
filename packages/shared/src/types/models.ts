@@ -29,5 +29,6 @@ export interface TypingUpdate {
 
 export interface UserPresence {
   userId: string;
+  userName?: string;
   isOnline: boolean;
 }

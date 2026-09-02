@@ -1,14 +1,17 @@
-import { useState, useEffect, useCallback } from "react";
-import type { Conversation, Message, TypingUpdate } from "@chat-x/shared";
+import { useState, useEffect, useCallback, useEffectEvent } from "react";
+import type { Conversation, Message, TypingUpdate, User, UserPresence } from "@chat-x/shared";
 import { getConversations, createConversation, sendTypingEvent } from "../api/client.js";
 import { useSSE } from "../hooks/useSSE.js";
 import { useMessages } from "../hooks/useMessages.js";
 import { Sidebar } from "../components/Sidebar.js";
 import { ChatWindow } from "../components/ChatWindow.js";
+import { usePresence } from "../hooks/usePresence.js";
+import { useAuth } from "../hooks/useAuth.js";
 
 export function ChatPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const { setPresence, presences } = usePresence();
 
   const {
     messages,
@@ -24,11 +27,31 @@ export function ChatPage() {
   const [conversationsError, setConversationsError] = useState<string | null>(null);
   const [typingUsers, setTypingUsers] = useState<Map<string, NodeJS.Timeout>>(new Map());
 
+  const syncUserNames = useEffectEvent((conversations: Conversation[]) => {
+    for (const convo of conversations) {
+      for (const user of convo.participants) {
+        setPresence({
+          userId: user.id,
+          userName: user.username,
+        });
+      }
+    }
+  });
+
   useEffect(() => {
-    getConversations()
-      .then((data) => setConversations(data.conversations))
-      .catch(() => setConversationsError("Failed to load conversations"))
-      .finally(() => setLoadingConversations(false));
+    async function loadConversations() {
+      try {
+        const data = await getConversations();
+        setConversations(data.conversations);
+        syncUserNames(data.conversations);
+      } catch {
+        setConversationsError("Failed to load conversations");
+      } finally {
+        setLoadingConversations(false);
+      }
+    }
+
+    loadConversations();
   }, []);
 
   const handleIncomingMessage = useCallback(
@@ -91,9 +114,19 @@ export function ChatPage() {
     [activeConversationId],
   );
 
+  const handleIncomingPresenceUpdates = useCallback(
+    (updates: UserPresence[]) => {
+      for (const { userId, isOnline } of updates) {
+        setPresence({ userId, isOnline });
+      }
+    },
+    [setPresence],
+  );
+
   useSSE({
     onMessage: handleIncomingMessage,
     onTypingChange: handleIncomingTypingUpdate,
+    onPresenceChange: handleIncomingPresenceUpdates,
   });
 
   const handleConversationChange = (conversationId: string) => {

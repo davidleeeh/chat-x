@@ -2,6 +2,7 @@ import type { Conversation, Message } from "@chat-x/shared";
 import { useAuth } from "../hooks/useAuth.js";
 import { MessageList } from "./MessageList.js";
 import { MessageInput } from "./MessageInput.js";
+import { usePresence } from "../hooks/usePresence.js";
 
 interface ChatWindowProps {
   conversation: Conversation;
@@ -29,9 +30,12 @@ export function ChatWindow({
   onDismissError,
 }: ChatWindowProps) {
   const { user } = useAuth();
+  const { presences } = usePresence();
   const otherUser = conversation.participants.find((p) => p.id !== user?.id);
   const isOtherUserTyping = typingUsers.includes(otherUser?.id ?? "");
   const typingIndicator = isOtherUserTyping ? `${otherUser?.username} is typing...` : null;
+  // TODO: This flag will be used when adding online indicator in the UI
+  // const isOtherUserOnline = otherUser ? presences[otherUser.id]?.isOnline : false;
 
   return (
     <>
