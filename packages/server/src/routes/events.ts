@@ -64,7 +64,7 @@ router.get("/", async (req, res) => {
   }
 
   // Sending the presences of other users in the conversations ${userId} is in.
-  const otherUserPresences = await getUserPresences(Array.from(otherUserIds));
+  const otherUserPresences = getUserPresences(Array.from(otherUserIds));
   const presenceData = JSON.stringify(otherUserPresences);
   res.write(`event: ${SSE_EVENT_NAMES.PRESENCE}\ndata: ${presenceData}\n\n`);
 

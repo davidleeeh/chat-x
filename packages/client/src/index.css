@@ -218,9 +218,25 @@ input:focus {
 }
 
 .conversation-item-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-weight: 600;
   font-size: 14px;
   margin-bottom: 2px;
+}
+
+.presence-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+  flex-shrink: 0;
+}
+
+.presence-dot.online {
+  background: #34c759;
 }
 
 .conversation-item-preview {
@@ -275,6 +291,9 @@ input:focus {
 
 /* Chat header */
 .chat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 12px 20px;
   border-bottom: 1px solid #ddd;
   font-weight: 600;

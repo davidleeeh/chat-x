@@ -1,5 +1,6 @@
 import type { Conversation } from "@chat-x/shared";
 import { useAuth } from "../hooks/useAuth.js";
+import { usePresence } from "../hooks/usePresence.js";
 
 interface ConversationListProps {
   conversations: Conversation[];
@@ -9,6 +10,7 @@ interface ConversationListProps {
 
 export function ConversationList({ conversations, activeId, onSelect }: ConversationListProps) {
   const { user } = useAuth();
+  const { presences } = usePresence();
 
   return (
     <div className="conversation-list">
@@ -19,6 +21,7 @@ export function ConversationList({ conversations, activeId, onSelect }: Conversa
         const otherUser = conv.participants.find((p) => p.id !== user?.id);
         const displayName = otherUser?.username ?? "Unknown";
         const isActive = conv.id === activeId;
+        const isOnline = otherUser ? presences[otherUser.id]?.isOnline : false;
 
         return (
           <div
@@ -26,7 +29,10 @@ export function ConversationList({ conversations, activeId, onSelect }: Conversa
             className={`conversation-item ${isActive ? "active" : ""}`}
             onClick={() => onSelect(conv.id)}
           >
-            <div className="conversation-item-name">{displayName}</div>
+            <div className="conversation-item-name">
+              <span className={`presence-dot ${isOnline ? "online" : ""}`} />
+              {displayName}
+            </div>
             <div className="conversation-item-preview">
               {conv.lastMessage ? conv.lastMessage.content : "No messages yet"}
             </div>

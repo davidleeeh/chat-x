@@ -34,12 +34,12 @@ export function ChatWindow({
   const otherUser = conversation.participants.find((p) => p.id !== user?.id);
   const isOtherUserTyping = typingUsers.includes(otherUser?.id ?? "");
   const typingIndicator = isOtherUserTyping ? `${otherUser?.username} is typing...` : null;
-  // TODO: This flag will be used when adding online indicator in the UI
-  // const isOtherUserOnline = otherUser ? presences[otherUser.id]?.isOnline : false;
+  const isOtherUserOnline = otherUser ? presences[otherUser.id]?.isOnline : false;
 
   return (
     <>
       <div className="chat-header">
+        <span className={`presence-dot ${isOtherUserOnline ? "online" : ""}`} />
         <span>{otherUser?.username ?? "Unknown"}</span>
       </div>
       {error && (
